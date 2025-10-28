@@ -10,11 +10,11 @@ export class ProductServiceAdmin {
   private productsSignal = signal<Product[]>([]);
   private auth = inject(AuthService);
   private get authHeaders(): HttpHeaders {
-  const token = this.auth.getToken();
-  return new HttpHeaders({
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  });
-}
+    const token = this.auth.getToken();
+    return new HttpHeaders({
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    });
+  }
 
   products = this.productsSignal;
 
@@ -45,32 +45,38 @@ export class ProductServiceAdmin {
   addProduct(product: Product) {
     const { id, ...productWithoutId } = product; // 👈 quitar id del body
 
-    this.http.post<Product>(this.API_URL, productWithoutId, { headers: this.authHeaders }).subscribe({
-      next: (newProd) => {
-        const current = this.productsSignal();
-        this.productsSignal.set([...current, newProd]);
-      },
-      error: (err) => console.error('Error al agregar producto', err),
-    });
+    this.http
+      .post<Product>(this.API_URL, productWithoutId, { headers: this.authHeaders })
+      .subscribe({
+        next: (newProd) => {
+          const current = this.productsSignal();
+          this.productsSignal.set([...current, newProd]);
+        },
+        error: (err) => console.error('Error al agregar producto', err),
+      });
   }
 
-  updateProduct(idProducto: number, product:Product) {
+  updateProduct(idProducto: number, product: Product) {
     console.log('producto update', product, { headers: this.authHeaders });
     const { id, ...productWithoutId } = product; // 👈 quitar id del body
 
-    this.http.put<Product>(`${this.API_URL}/${idProducto}`, productWithoutId).subscribe({
-     next: (updated) => {
-    if (updated) {
-      this.productsSignal.update((products) =>
-        products.map((p) => (p.id === updated.id ? updated : p))
-      );
-      this.loadProducts();
-    } else {
-      console.warn('Producto actualizado no devuelto por el backend');
-    }
-  },
-      error: (err) => console.error('Error al actualizar', err),
-    });
+    this.http
+      .put<Product>(`${this.API_URL}/${idProducto}`, productWithoutId, {
+        headers: this.authHeaders,
+      })
+      .subscribe({
+        next: (updated) => {
+          if (updated) {
+            this.productsSignal.update((products) =>
+              products.map((p) => (p.id === updated.id ? updated : p))
+            );
+            this.loadProducts();
+          } else {
+            console.warn('Producto actualizado no devuelto por el backend');
+          }
+        },
+        error: (err) => console.error('Error al actualizar', err),
+      });
   }
 
   deleteProduct(id: number) {
@@ -82,7 +88,7 @@ export class ProductServiceAdmin {
     });
   }
   // ✅ Nuevo método unificado para el formulario
-  saveProduct(id: number, formData:FormData,producto:Product) {
+  saveProduct(id: number, formData: FormData, producto: Product) {
     if (id) {
       return this.updateProduct(id, producto);
     }
