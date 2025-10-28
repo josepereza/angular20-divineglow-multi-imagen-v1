@@ -24,7 +24,7 @@
             <div class="carousel-inner rounded">
               @for (imagen of productItem.imagenes; track imagen.id) {
                 <div class="carousel-item" [class.active]="$first">
-                  <img [src]="imagen.imageUrl" class="d-block w-100 product-image" [alt]="productItem.name + ' - Ansicht ' + ($index + 1)">
+                  <img [src]="'http://localhost:3000' + imagen.imageUrl" class="d-block w-100 product-image" [alt]="productItem.name + ' - Ansicht ' + ($index + 1)">
                 </div>
               }
             </div>

@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'product-list-admin',
-  imports: [ReactiveFormsModule, NgIf,NgFor, RouterLink],
+  imports: [ReactiveFormsModule, NgIf, NgFor, RouterLink],
   templateUrl: './product-list-admin.html',
   styleUrl: './product-list-admin.css',
 })
@@ -27,10 +27,11 @@ export class ProductListAdmin {
   imagenesPreview = signal<string[]>([]);
 
   productoForm: FormGroup = this.fb.group({
+    id: [null],
     name: ['', Validators.required],
     description: ['', Validators.required],
     price: [0, [Validators.required, Validators.min(0)]],
-    stock: [0, [Validators.required, Validators.min(1)]]
+    stock: [0, [Validators.required, Validators.min(1)]],
   });
 
   selectedFiles: File[] = [];
@@ -38,19 +39,24 @@ export class ProductListAdmin {
   constructor() {
     this.service.loadProducts();
 
+    effect(() => {
+      const product = this.selectedProduct();
+      if (product) {
+        this.productoForm.patchValue(product);
+      } else {
+        this.productoForm.reset();
+      }
+    });
   }
-  
 
-  
   editMode = computed(() => !!this.selectedProduct());
 
-  
-onFileChange(event: any) {
+  onFileChange(event: any) {
     const files: FileList = event.target.files;
     this.selectedFiles = Array.from(files);
 
     const previews: string[] = [];
-    this.selectedFiles.forEach(file => {
+    this.selectedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e: any) => {
         previews.push(e.target.result);
@@ -71,11 +77,14 @@ onFileChange(event: any) {
     formData.append('price', productoDto.price);
     formData.append('stock', productoDto.stock);
 
-    this.selectedFiles.forEach(file => {
+    this.selectedFiles.forEach((file) => {
       formData.append('files', file);
     });
+      const id = this.productoForm.get('id')?.value;
+    this.service.saveProduct(id, formData,this.productoForm.value);
+    this.closeModal();  
 
-    this.http.post('http://localhost:3000/productos/upload', formData)
+     /*   this.http.post('http://localhost:3000/productos/upload', formData)
       .subscribe({
         next: resp => {
           console.log('Producto creado:', resp);
@@ -84,7 +93,7 @@ onFileChange(event: any) {
           this.imagenesPreview.set([]);
         },
         error: err => console.error(err)
-      });
+      });   */
   }
   openAddModal() {
     this.selectedProduct.set(null);
@@ -100,13 +109,10 @@ onFileChange(event: any) {
     this.showModal.set(false);
   }
 
-  
-
   deleteProduct(id: number) {
     this.service.deleteProduct(id);
   }
 
-  
   logout() {
     this.auth.logout();
     this.router.navigate(['/login']); // vuelve a la página de login

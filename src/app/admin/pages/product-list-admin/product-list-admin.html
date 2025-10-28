@@ -17,16 +17,21 @@
 </div>
 <div class="container mt-4">
   <!-- LISTADO DE PRODUCTOS -->
-  <div class="row row-cols-1 row-cols-md-3 g-4">
+   
+    <div class="row row-cols-1 row-cols-md-3 g-4">
     @for(product of products(); track product.id) {
     <div class="col">
       <div class="card bg-dark text-white shadow border-secondary h-100">
-        <img
-          [src]="product.imagenes[0].imageUrl"
+        @if (product?.imagenes?.length) {
+           <img
+          [src]="'http://localhost:3000' + product.imagenes[0]?.imageUrl"
           class="card-img-top"
           style="height: 180px; object-fit: cover"
         />
-
+        }
+          
+      
+       
         <div class="card-body d-flex flex-column">
           <h5 class="text-info">{{ product.name }}</h5>
           <p class="text-warning small">Lagerbestand: {{ product.stock }}</p>
@@ -47,6 +52,8 @@
     </div>
     }
   </div>
+  
+  
 </div>
 
 <!-- MODAL FORMULARIO -->
@@ -61,46 +68,49 @@
       </div>
 
       <div class="modal-body">
-     <form [formGroup]="productoForm" (ngSubmit)="submitForm()" class="card p-4 shadow">
+        <form [formGroup]="productoForm" (ngSubmit)="submitForm()" class="card p-4 shadow">
+          <h3 class="mb-3">Crear Producto</h3>
 
-    <h3 class="mb-3">Crear Producto</h3>
+          <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input formControlName="name" class="form-control" placeholder="Nombre del producto" />
+          </div>
 
-    <div class="mb-3">
-      <label class="form-label">Nombre</label>
-      <input formControlName="name" class="form-control" placeholder="Nombre del producto" />
-    </div>
+          <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea formControlName="description" class="form-control"></textarea>
+          </div>
 
-    <div class="mb-3">
-      <label class="form-label">Descripción</label>
-      <textarea formControlName="description" class="form-control"></textarea>
-    </div>
+          <div class="mb-3">
+            <label class="form-label">Precio</label>
+            <input type="number" formControlName="price" class="form-control" />
+          </div>
 
-    <div class="mb-3">
-      <label class="form-label">Precio</label>
-      <input type="number" formControlName="price" class="form-control" />
-    </div>
+          <div class="mb-3">
+            <label class="form-label">Stock</label>
+            <input type="number" formControlName="stock" class="form-control" />
+          </div>
 
-    <div class="mb-3">
-      <label class="form-label">Stock</label>
-      <input type="number" formControlName="stock" class="form-control" />
-    </div>
+          <div class="mb-3">
+            <label class="form-label">Imágenes</label>
+            <input type="file" multiple class="form-control" (change)="onFileChange($event)" />
+          </div>
 
-    <div class="mb-3">
-      <label class="form-label">Imágenes</label>
-      <input type="file" multiple class="form-control" (change)="onFileChange($event)" />
-    </div>
+          <!-- ✅ Previsualización de imágenes -->
+          <div class="row mt-3" *ngIf="imagenesPreview().length > 0">
+            <div class="col-3" *ngFor="let img of imagenesPreview()">
+              <img
+                [src]="img"
+                class="img-thumbnail mb-2"
+                style="height: 100px; object-fit: cover"
+              />
+            </div>
+          </div>
 
-    <!-- ✅ Previsualización de imágenes -->
-    <div class="row mt-3" *ngIf="imagenesPreview().length > 0">
-      <div class="col-3" *ngFor="let img of imagenesPreview()">
-        <img [src]="img" class="img-thumbnail mb-2" style="height: 100px; object-fit: cover;">
-      </div>
-    </div>
-
-    <button class="btn btn-primary w-100 mt-3" [disabled]="productoForm.invalid">
-      Crear Producto
-    </button>
-  </form>
+          <button class="btn btn-primary w-100 mt-3" [disabled]="productoForm.invalid">
+            Crear Producto
+          </button>
+        </form>
       </div>
 
       <div class="modal-footer">

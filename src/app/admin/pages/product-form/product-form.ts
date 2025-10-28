@@ -111,7 +111,7 @@ export class ProductFormComponent implements OnInit {
       delete product.id;
     }
 
-    this.service.saveProduct(product as Product);
-    this.form.reset();
+   /*  this.service.saveProduct(product as Product);
+    this.form.reset(); */
   }
 }
