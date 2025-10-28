@@ -6,14 +6,25 @@ import { Product } from '../../interfaces/product';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { map, switchMap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { NgbCarouselConfig, NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-details',
-  imports: [CurrencyPipe,CommonModule],
+  imports: [CurrencyPipe,CommonModule, NgbCarouselModule],
   templateUrl: './details.html',
-  styleUrl: './details.css'
+  styleUrl: './details.css',
+  providers: [NgbCarouselConfig],
+
 })
 export class Details {
+
+  constructor(config: NgbCarouselConfig) {
+		// customize default values of carousels used by this component tree
+		config.interval = 3000;
+		config.wrap = true;
+		config.keyboard = false;
+		config.pauseOnHover = false;
+	}
 /* // Inyección de dependencias moderna
   private route = inject(ActivatedRoute);
   private productService = inject(ProductoService);
@@ -56,7 +67,7 @@ export class Details {
   addedToCart = signal(false);
   // ✅ 2. Convertimos el observable de productos a una señal reactiva
   products = toSignal(this.productService.getProducts(), { initialValue: [] as Product[] });
-
+  
   // ✅ 3. Computed signal que recalcula automáticamente el producto actual
   product = computed(() => {
     const productId = +this.id();
